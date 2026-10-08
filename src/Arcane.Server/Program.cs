@@ -1,6 +1,9 @@
-﻿using System.Net;
+﻿using Arcane.Server.Core;
+using Arcane.Server.Network.Protocol;
+
+using System.Net;
 using System.Net.Sockets;
-using System.Text;
+using System.Text.Json;
 
 namespace Arcane.Server;
 
@@ -51,8 +54,10 @@ internal class Program
                 var payloadBuffer = new byte[messageLength];
                 await ReceiveAllAsync(client, payloadBuffer);
 
-                var request = Encoding.UTF8.GetString(payloadBuffer);
-                Console.WriteLine($"Received {messageLength} bytes: {request}");
+                var reader = new BitReader(payloadBuffer);
+                var data = new PacketReader(ref reader).Read();
+
+                Console.WriteLine($"Received: {JsonSerializer.Serialize(data)}");
 
                 var responseData = "Hello, I'm Server."u8.ToArray();
                 var responseLength = BitConverter.GetBytes(responseData.Length);
