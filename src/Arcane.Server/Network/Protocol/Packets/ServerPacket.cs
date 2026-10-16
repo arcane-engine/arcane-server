@@ -2,10 +2,10 @@
 
 internal struct ServerPacket
 {
-    public List<ServerRegisterPacket> Register { get; set; }
+    public List<ServerActorPacket> Actor { get; set; }
 }
 
-internal struct ServerRegisterPacket
+internal struct ServerActorPacket
 {
     public bool Register { get; set; }
     public ushort Id { get; set; }

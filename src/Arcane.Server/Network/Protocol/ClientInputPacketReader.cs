@@ -3,20 +3,18 @@ using Arcane.Server.Network.Protocol.Packets;
 
 namespace Arcane.Server.Network.Protocol;
 
-internal ref struct ClientInputPacketReader(ref BitReader reader)
+internal ref struct ClientInputPacketReader
 {
-    private BitReader _reader = reader;
-
-    public ClientInputPacket? Read()
+    public static ClientInputPacket? Read(ref BitReader reader)
     {
-        if (_reader.ReadBit())
+        if (reader.ReadBit())
         {
             return new ClientInputPacket
             {
-                Forward = _reader.ReadBit(),
-                Backward = _reader.ReadBit(),
-                Left = _reader.ReadBit(),
-                Right = _reader.ReadBit()
+                Forward = reader.ReadBit(),
+                Backward = reader.ReadBit(),
+                Left = reader.ReadBit(),
+                Right = reader.ReadBit()
             };
         }
 

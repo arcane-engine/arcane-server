@@ -14,26 +14,18 @@ internal ref struct BitReader(ReadOnlySpan<byte> buffer)
         return (_buffer[byteIndex] & (1 << bitIndex)) != 0;
     }
 
-    public ushort ReadByte()
+    public float ReadFloat()
     {
-        ushort value = 0;
-        for (var i = 0; i < 8; i++)
+        uint value = 0;
+        for (var i = 31; i >= 0; i--)
         {
-            value = (ushort)((value << 1) | (ReadBit() ? 1 : 0));
+            if (ReadBit())
+            {
+                value |= 1u << i;
+            }
         }
 
-        return value;
-    }
-
-    public ushort ReadUnsignedShort()
-    {
-        ushort value = 0;
-        for (var i = 0; i < 16; i++)
-        {
-            value = (ushort)((value << 1) | (ReadBit() ? 1 : 0));
-        }
-
-        return value;
+        return BitConverter.Int32BitsToSingle((int)value);
     }
 
     public void Skip(int bits)

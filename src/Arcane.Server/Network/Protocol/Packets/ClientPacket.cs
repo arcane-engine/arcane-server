@@ -3,4 +3,5 @@
 internal struct ClientPacket
 {
     public ClientInputPacket? Input { get; init; }
+    public ClientMotionPacket? Motion { get; init; }
 }

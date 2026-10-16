@@ -80,7 +80,7 @@ internal class Program
                 await ReceiveAllAsync(client, payloadBuffer);
 
                 var reader = new BitReader(payloadBuffer);
-                var data = new ClientPacketReader(ref reader).Read();
+                var data = ClientPacketReader.Read(ref reader);
 
                 Console.WriteLine($"Received: {JsonSerializer.Serialize(data)}");
             }
@@ -118,9 +118,9 @@ internal class Program
 
         var packet = new ServerPacket
         {
-            Register =
+            Actor =
             [
-                new ServerRegisterPacket { Register = true, Id = (ushort)playerId }
+                new ServerActorPacket { Register = true, Id = (ushort)playerId }
             ]
         };
 
@@ -146,9 +146,9 @@ internal class Program
 
         var packet = new ServerPacket
         {
-            Register =
+            Actor =
             [
-                new ServerRegisterPacket { Register = false, Id = (ushort)playerId }
+                new ServerActorPacket { Register = false, Id = (ushort)playerId }
             ]
         };
 

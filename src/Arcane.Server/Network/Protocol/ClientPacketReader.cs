@@ -3,15 +3,14 @@ using Arcane.Server.Network.Protocol.Packets;
 
 namespace Arcane.Server.Network.Protocol;
 
-internal ref struct ClientPacketReader(ref BitReader reader)
+internal ref struct ClientPacketReader
 {
-    private BitReader _reader = reader;
-
-    public ClientPacket Read()
+    public static ClientPacket Read(ref BitReader reader)
     {
         return new ClientPacket
         {
-            Input = new ClientInputPacketReader(ref _reader).Read()
+            Input = ClientInputPacketReader.Read(ref reader),
+            Motion = ClientMotionPacketReader.Read(ref reader)
         };
     }
 }

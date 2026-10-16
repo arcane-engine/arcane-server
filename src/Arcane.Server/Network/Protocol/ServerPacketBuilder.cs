@@ -9,11 +9,11 @@ internal ref struct ServerPacketBuilder(ref BitWriter writer)
 
     public int Write(ServerPacket packet)
     {
-        _writer.WriteBit(packet.Register.Count != 0);
-        if (packet.Register.Count != 0)
+        _writer.WriteBit(packet.Actor.Count != 0);
+        if (packet.Actor.Count != 0)
         {
-            _writer.WriteUnsignedShort((ushort)packet.Register.Count);
-            foreach (var item in packet.Register)
+            _writer.WriteUnsignedShort((ushort)packet.Actor.Count);
+            foreach (var item in packet.Actor)
             {
                 _writer.WriteBit(item.Register);
                 _writer.WriteUnsignedShort(item.Id);
