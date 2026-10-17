@@ -13,12 +13,15 @@ namespace Arcane.Server;
 internal class Player
 {
     public int Id { get; set; }
+    public Float3 Position { get; set; } = new();
+    public Float3 Velocity { get; set; } = new();
 }
 
 internal class Program
 {
     private static readonly Lock Lock = new();
     private static int _players;
+    private static readonly ConcurrentDictionary<int, Player> Players = [];
     private const int Port = 5000;
 
     private static readonly ConcurrentDictionary<int, ChannelWriter<byte[]>> ActivePlayers = new();
@@ -38,11 +41,12 @@ internal class Program
                 var client = await listener.AcceptAsync();
                 lock (Lock)
                 {
-                    _players++;
                     var player = new Player
                     {
                         Id = _players
                     };
+                    _players++;
+                    Players[player.Id] = player;
                     _ = HandleClientAsync(client, player);
                 }
             }
@@ -63,7 +67,7 @@ internal class Program
 
         ActivePlayers[player.Id] = outboundChannel.Writer;
 
-        await BroadcastPlayerJoinedAsync(player.Id);
+        await BroadcastPlayerJoinedAsync();
 
         var writeTask = ProcessOutboundQueueAsync(client, outboundChannel.Reader, player);
 
@@ -82,6 +86,14 @@ internal class Program
                 var reader = new BitReader(payloadBuffer);
                 var data = ClientPacketReader.Read(ref reader);
 
+                Players[player.Id].Position = data.Motion?.Position ?? Players[player.Id].Position;
+                Players[player.Id].Velocity = data.Motion?.Velocity ?? Players[player.Id].Velocity;
+
+                if (data.Motion != null)
+                {
+                    await BroadcastPlayerMotionAsync(player.Id);
+                }
+
                 Console.WriteLine($"Received: {JsonSerializer.Serialize(data)}");
             }
         }
@@ -92,6 +104,7 @@ internal class Program
         finally
         {
             ActivePlayers.TryRemove(player.Id, out _);
+            Players.TryRemove(player.Id, out _);
 
             await BroadcastPlayerLeftAsync(player.Id);
 
@@ -110,7 +123,33 @@ internal class Program
         }
     }
 
-    private static async Task BroadcastPlayerJoinedAsync(int playerId)
+    private static async Task BroadcastPlayerMotionAsync(int playerId)
+    {
+        var buffer = new byte[256];
+        var writer = new BitWriter(buffer);
+        var builder = new ServerPacketBuilder(ref writer);
+
+        var player = Players[playerId];
+
+        var packet = new ServerPacket
+        {
+            Actor = [],
+            ActorMoved =
+            [
+                new ServerActorMovedPacket { Id = (ushort)playerId, Position = player.Position, Velocity = player.Velocity }
+            ]
+        };
+
+        var size = builder.Write(packet);
+        var finalPacket = WrapWithLength(buffer, size);
+
+        foreach (var kvp in ActivePlayers)
+        {
+            await kvp.Value.WriteAsync(finalPacket);
+        }
+    }
+
+    private static async Task BroadcastPlayerJoinedAsync()
     {
         var buffer = new byte[256];
         var writer = new BitWriter(buffer);
@@ -120,8 +159,9 @@ internal class Program
         {
             Actor =
             [
-                new ServerActorPacket { Register = true, Id = (ushort)playerId }
-            ]
+                ..Players.Values.Select(player => new ServerActorPacket { Id = (ushort)player.Id, Register = true })
+            ],
+            ActorMoved = []
         };
 
         var size = builder.Write(packet);
@@ -129,11 +169,6 @@ internal class Program
 
         foreach (var kvp in ActivePlayers)
         {
-            if (kvp.Key == playerId)
-            {
-                continue;
-            }
-
             await kvp.Value.WriteAsync(finalPacket);
         }
     }
@@ -148,8 +183,9 @@ internal class Program
         {
             Actor =
             [
-                new ServerActorPacket { Register = false, Id = (ushort)playerId }
-            ]
+                new ServerActorPacket { Id = (ushort)playerId, Register = false }
+            ],
+            ActorMoved = []
         };
 
         var size = builder.Write(packet);

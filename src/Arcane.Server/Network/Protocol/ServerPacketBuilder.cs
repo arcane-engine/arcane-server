@@ -15,8 +15,23 @@ internal ref struct ServerPacketBuilder(ref BitWriter writer)
             _writer.WriteUnsignedShort((ushort)packet.Actor.Count);
             foreach (var item in packet.Actor)
             {
-                _writer.WriteBit(item.Register);
                 _writer.WriteUnsignedShort(item.Id);
+                _writer.WriteBit(item.Register);
+            }
+        }
+        _writer.WriteBit(packet.ActorMoved.Count != 0);
+        if (packet.ActorMoved.Count != 0)
+        {
+            _writer.WriteUnsignedShort((ushort)packet.ActorMoved.Count);
+            foreach (var item in packet.ActorMoved)
+            {
+                _writer.WriteUnsignedShort(item.Id);
+                _writer.WriteFloat(item.Position.X);
+                _writer.WriteFloat(item.Position.Y);
+                _writer.WriteFloat(item.Position.Z);
+                _writer.WriteFloat(item.Velocity.X);
+                _writer.WriteFloat(item.Velocity.Y);
+                _writer.WriteFloat(item.Velocity.Z);
             }
         }
 

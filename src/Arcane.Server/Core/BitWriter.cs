@@ -36,6 +36,16 @@ internal ref struct BitWriter(Span<byte> buffer)
         }
     }
 
+    public void WriteFloat(float value)
+    {
+        var bits = BitConverter.SingleToInt32Bits(value);
+
+        for (var i = 31; i >= 0; i--)
+        {
+            WriteBit((bits & (1 << i)) != 0);
+        }
+    }
+
     public void Skip(int bits)
     {
         _offset += bits;

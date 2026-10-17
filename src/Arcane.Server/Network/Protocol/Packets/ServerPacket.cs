@@ -3,10 +3,18 @@
 internal struct ServerPacket
 {
     public List<ServerActorPacket> Actor { get; set; }
+    public List<ServerActorMovedPacket> ActorMoved { get; set; }
 }
 
 internal struct ServerActorPacket
 {
-    public bool Register { get; set; }
     public ushort Id { get; set; }
+    public bool Register { get; set; }
+}
+
+internal struct ServerActorMovedPacket
+{
+    public ushort Id { get; set; }
+    public Float3 Position { get; set; }
+    public Float3 Velocity { get; set; }
 }
