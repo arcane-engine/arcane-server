@@ -1,4 +1,6 @@
-﻿namespace Arcane.Server.Core;
+﻿using Arcane.Server.Network.Protocol.Packets;
+
+namespace Arcane.Server.Core;
 
 internal ref struct BitWriter(Span<byte> buffer)
 {
@@ -44,6 +46,21 @@ internal ref struct BitWriter(Span<byte> buffer)
         {
             WriteBit((bits & (1 << i)) != 0);
         }
+    }
+
+    public void WriteFloat3(Float3 value)
+    {
+        WriteFloat(value.X);
+        WriteFloat(value.Y);
+        WriteFloat(value.Z);
+    }
+
+    public void WriteFloat4(Float4 value)
+    {
+        WriteFloat(value.X);
+        WriteFloat(value.Y);
+        WriteFloat(value.Z);
+        WriteFloat(value.W);
     }
 
     public void Skip(int bits)

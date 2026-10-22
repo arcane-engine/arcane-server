@@ -19,6 +19,7 @@ internal ref struct ServerPacketBuilder(ref BitWriter writer)
                 _writer.WriteBit(item.Register);
             }
         }
+
         _writer.WriteBit(packet.ActorMoved.Count != 0);
         if (packet.ActorMoved.Count != 0)
         {
@@ -26,12 +27,21 @@ internal ref struct ServerPacketBuilder(ref BitWriter writer)
             foreach (var item in packet.ActorMoved)
             {
                 _writer.WriteUnsignedShort(item.Id);
-                _writer.WriteFloat(item.Position.X);
-                _writer.WriteFloat(item.Position.Y);
-                _writer.WriteFloat(item.Position.Z);
-                _writer.WriteFloat(item.Velocity.X);
-                _writer.WriteFloat(item.Velocity.Y);
-                _writer.WriteFloat(item.Velocity.Z);
+                _writer.WriteFloat3(item.Position);
+                _writer.WriteFloat3(item.Velocity);
+            }
+        }
+
+        _writer.WriteBit(packet.SceneNodes.Count != 0);
+        if (packet.SceneNodes.Count != 0)
+        {
+            _writer.WriteUnsignedShort((ushort)packet.SceneNodes.Count);
+            foreach (var sceneNode in packet.SceneNodes)
+            {
+                _writer.WriteUnsignedShort(sceneNode.Id);
+                _writer.WriteFloat3(sceneNode.Position);
+                _writer.WriteFloat4(sceneNode.Rotation);
+                _writer.WriteFloat3(sceneNode.Scale);
             }
         }
 

@@ -1,4 +1,6 @@
-﻿namespace Arcane.Server.Core;
+﻿using Arcane.Server.Network.Protocol.Packets;
+
+namespace Arcane.Server.Core;
 
 internal ref struct BitReader(ReadOnlySpan<byte> buffer)
 {
@@ -26,6 +28,11 @@ internal ref struct BitReader(ReadOnlySpan<byte> buffer)
         }
 
         return BitConverter.Int32BitsToSingle((int)value);
+    }
+
+    public Float3 ReadFloat3()
+    {
+        return new Float3(ReadFloat(), ReadFloat(), ReadFloat());
     }
 
     public void Skip(int bits)

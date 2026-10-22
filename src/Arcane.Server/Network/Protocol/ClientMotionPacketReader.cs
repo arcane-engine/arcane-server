@@ -11,18 +11,8 @@ internal ref struct ClientMotionPacketReader
         {
             return new ClientMotionPacket
             {
-                Position = new Float3
-                {
-                    X = reader.ReadFloat(),
-                    Y = reader.ReadFloat(),
-                    Z = reader.ReadFloat()
-                },
-                Velocity = new Float3
-                {
-                    X = reader.ReadFloat(),
-                    Y = reader.ReadFloat(),
-                    Z = reader.ReadFloat()
-                }
+                Position = reader.ReadFloat3(),
+                Velocity = reader.ReadFloat3()
             };
         }
 

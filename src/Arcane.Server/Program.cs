@@ -13,8 +13,8 @@ namespace Arcane.Server;
 internal class Player
 {
     public int Id { get; set; }
-    public Float3 Position { get; set; } = new();
-    public Float3 Velocity { get; set; } = new();
+    public Float3 Position { get; set; }
+    public Float3 Velocity { get; set; }
 }
 
 internal class Program
@@ -66,6 +66,8 @@ internal class Program
         var outboundChannel = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions { SingleReader = true });
 
         ActivePlayers[player.Id] = outboundChannel.Writer;
+
+        await SendSceneAsync(player.Id);
 
         await BroadcastPlayerJoinedAsync();
 
@@ -123,6 +125,31 @@ internal class Program
         }
     }
 
+    private static async Task SendSceneAsync(int playerId)
+    {
+        var buffer = new byte[256];
+        var writer = new BitWriter(buffer);
+        var builder = new ServerPacketBuilder(ref writer);
+
+        var packet = new ServerPacket
+        {
+            Actor = [],
+            ActorMoved = [],
+            SceneNodes = [
+                new ServerSceneNodePacket { Id = 1, Position = new Float3(0,0,0), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)},
+                new ServerSceneNodePacket { Id = 1, Position = new Float3(2,2,2), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)},
+                new ServerSceneNodePacket { Id = 1, Position = new Float3(4,4,4), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)},
+                new ServerSceneNodePacket { Id = 1, Position = new Float3(6,6,6), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)},
+                new ServerSceneNodePacket { Id = 1, Position = new Float3(8,8,8), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)}
+            ]
+        };
+
+        var size = builder.Write(packet);
+        var finalPacket = WrapWithLength(buffer, size);
+
+        await ActivePlayers[playerId].WriteAsync(finalPacket);
+    }
+
     private static async Task BroadcastPlayerMotionAsync(int playerId)
     {
         var buffer = new byte[256];
@@ -137,7 +164,8 @@ internal class Program
             ActorMoved =
             [
                 new ServerActorMovedPacket { Id = (ushort)playerId, Position = player.Position, Velocity = player.Velocity }
-            ]
+            ],
+            SceneNodes = []
         };
 
         var size = builder.Write(packet);
@@ -161,7 +189,8 @@ internal class Program
             [
                 ..Players.Values.Select(player => new ServerActorPacket { Id = (ushort)player.Id, Register = true })
             ],
-            ActorMoved = []
+            ActorMoved = [],
+            SceneNodes = []
         };
 
         var size = builder.Write(packet);
@@ -185,7 +214,8 @@ internal class Program
             [
                 new ServerActorPacket { Id = (ushort)playerId, Register = false }
             ],
-            ActorMoved = []
+            ActorMoved = [],
+            SceneNodes = []
         };
 
         var size = builder.Write(packet);
