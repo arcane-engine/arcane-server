@@ -39,6 +39,8 @@ internal ref struct ServerPacketBuilder(ref BitWriter writer)
             foreach (var sceneNode in packet.SceneNodes)
             {
                 _writer.WriteUnsignedShort(sceneNode.Id);
+                _writer.WriteString(sceneNode.Mesh);
+                _writer.WriteString(sceneNode.Material);
                 _writer.WriteFloat3(sceneNode.Position);
                 _writer.WriteFloat4(sceneNode.Rotation);
                 _writer.WriteFloat3(sceneNode.Scale);

@@ -127,7 +127,7 @@ internal class Program
 
     private static async Task SendSceneAsync(int playerId)
     {
-        var buffer = new byte[256];
+        var buffer = new byte[8192];
         var writer = new BitWriter(buffer);
         var builder = new ServerPacketBuilder(ref writer);
 
@@ -136,11 +136,11 @@ internal class Program
             Actor = [],
             ActorMoved = [],
             SceneNodes = [
-                new ServerSceneNodePacket { Id = 1, Position = new Float3(0,0,0), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)},
-                new ServerSceneNodePacket { Id = 1, Position = new Float3(2,2,2), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)},
-                new ServerSceneNodePacket { Id = 1, Position = new Float3(4,4,4), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)},
-                new ServerSceneNodePacket { Id = 1, Position = new Float3(6,6,6), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)},
-                new ServerSceneNodePacket { Id = 1, Position = new Float3(8,8,8), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)}
+                new ServerSceneNodePacket { Id = 1, Mesh="Cube", Material="Grass", Position = new Float3(0,0,0), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)},
+                new ServerSceneNodePacket { Id = 1, Mesh="Cube", Material="Default", Position = new Float3(2,2,2), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)},
+                new ServerSceneNodePacket { Id = 1, Mesh="Cube", Material="Grass", Position = new Float3(4,4,4), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)},
+                new ServerSceneNodePacket { Id = 1, Mesh="Cube", Material="Default", Position = new Float3(6,6,6), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)},
+                new ServerSceneNodePacket { Id = 1, Mesh="Cube", Material="Grass", Position = new Float3(8,8,8), Rotation = new Float4(0, 0, 0, 0), Scale = new Float3(1, 1, 1)}
             ]
         };
 

@@ -63,6 +63,17 @@ internal ref struct BitWriter(Span<byte> buffer)
         WriteFloat(value.W);
     }
 
+    public void WriteString(string value)
+    {
+        var bytes = System.Text.Encoding.UTF8.GetBytes(value);
+
+        WriteUnsignedShort((ushort)bytes.Length);
+        foreach (var b in bytes)
+        {
+            WriteByte(b);
+        }
+    }
+
     public void Skip(int bits)
     {
         _offset += bits;

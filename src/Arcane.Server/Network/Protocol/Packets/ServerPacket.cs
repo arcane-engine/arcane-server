@@ -23,6 +23,8 @@ internal struct ServerActorMovedPacket
 internal struct ServerSceneNodePacket
 {
     public ushort Id { get; set; }
+    public string Mesh { get; set; }
+    public string Material { get; set; }
     public Float3 Position { get; set; }
     public Float4 Rotation { get; set; }
     public Float3 Scale { get; set; }
